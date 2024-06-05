@@ -31,6 +31,7 @@ import (
 	"github.com/nspcc-dev/neo-go/pkg/core/block"
 	"github.com/nspcc-dev/neo-go/pkg/core/fee"
 	"github.com/nspcc-dev/neo-go/pkg/core/interop/interopnames"
+	"github.com/nspcc-dev/neo-go/pkg/core/native/nativehashes"
 	"github.com/nspcc-dev/neo-go/pkg/core/native/nativenames"
 	"github.com/nspcc-dev/neo-go/pkg/core/state"
 	"github.com/nspcc-dev/neo-go/pkg/core/storage/dboper"
@@ -2495,7 +2496,7 @@ func createValidNotaryRequest(chain *core.Blockchain, sender *keys.PrivateKey, n
 			{Type: transaction.ConflictsT, Value: &transaction.Conflicts{Hash: mainTx.Hash()}},
 			{Type: transaction.NotaryAssistedT, Value: &transaction.NotaryAssisted{NKeys: 0}},
 		},
-		Signers: []transaction.Signer{{Account: chain.GetNotaryContractScriptHash()}, {Account: sender.GetScriptHash()}},
+		Signers: []transaction.Signer{{Account: nativehashes.Notary}, {Account: sender.GetScriptHash()}},
 		Scripts: []transaction.Witness{
 			{InvocationScript: append([]byte{byte(opcode.PUSHDATA1), keys.SignatureLen}, make([]byte, keys.SignatureLen)...), VerificationScript: []byte{}},
 		},
@@ -3924,7 +3925,7 @@ func checkNep17TransfersAux(t *testing.T, e *executor, acc any, sent, rcvd []int
 			{
 				Timestamp:   blockDepositGAS.Timestamp,
 				Asset:       e.chain.UtilityTokenHash(),
-				Address:     address.Uint160ToString(e.chain.GetNotaryContractScriptHash()),
+				Address:     address.Uint160ToString(nativehashes.Notary),
 				Amount:      "1000000000",
 				Index:       8,
 				NotifyIndex: 0,

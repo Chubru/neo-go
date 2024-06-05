@@ -22,6 +22,7 @@ import (
 	"github.com/nspcc-dev/neo-go/pkg/core/mempool"
 	"github.com/nspcc-dev/neo-go/pkg/core/mpt"
 	"github.com/nspcc-dev/neo-go/pkg/core/native"
+	"github.com/nspcc-dev/neo-go/pkg/core/native/nativehashes"
 	"github.com/nspcc-dev/neo-go/pkg/core/native/noderoles"
 	"github.com/nspcc-dev/neo-go/pkg/core/state"
 	"github.com/nspcc-dev/neo-go/pkg/core/stateroot"
@@ -2114,14 +2115,6 @@ func (bc *Blockchain) GetNotaryServiceFeePerKey() int64 {
 	return bc.contracts.Policy.GetAttributeFeeInternal(bc.dao, transaction.NotaryAssistedT)
 }
 
-// GetNotaryContractScriptHash returns Notary native contract hash.
-func (bc *Blockchain) GetNotaryContractScriptHash() util.Uint160 {
-	if bc.P2PSigExtensionsEnabled() {
-		return bc.contracts.Notary.Hash
-	}
-	return util.Uint160{}
-}
-
 // GetNotaryDepositExpiration returns Notary deposit expiration height for the specified account.
 func (bc *Blockchain) GetNotaryDepositExpiration(acc util.Uint160) uint32 {
 	return bc.contracts.Notary.ExpirationOf(bc.dao, acc)
@@ -2698,7 +2691,7 @@ func (bc *Blockchain) verifyTxAttributes(d *dao.Simple, tx *transaction.Transact
 			if !bc.config.P2PSigExtensions {
 				return fmt.Errorf("%w: NotaryAssisted attribute was found, but P2PSigExtensions are disabled", ErrInvalidAttribute)
 			}
-			if !tx.HasSigner(bc.contracts.Notary.Hash) {
+			if !tx.HasSigner(nativehashes.Notary) {
 				return fmt.Errorf("%w: NotaryAssisted attribute was found, but transaction is not signed by the Notary native contract", ErrInvalidAttribute)
 			}
 		default:
