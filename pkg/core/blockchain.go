@@ -2105,18 +2105,27 @@ func (bc *Blockchain) GetGoverningTokenBalance(acc util.Uint160) (*big.Int, uint
 }
 
 // GetNotaryBalance returns Notary deposit amount for the specified account.
+// Default value is returned if Notary contract is not yet active.
 func (bc *Blockchain) GetNotaryBalance(acc util.Uint160) *big.Int {
+	if !bc.isHardforkEnabled(bc.contracts.Notary.ActiveIn(), bc.BlockHeight()) {
+		return nil
+	}
 	return bc.contracts.Notary.BalanceOf(bc.dao, acc)
 }
 
 // GetNotaryServiceFeePerKey returns a NotaryAssisted transaction attribute fee
 // per key which is a reward per notary request key for designated notary nodes.
+// Default value is returned if Notary contract is not yet active.
 func (bc *Blockchain) GetNotaryServiceFeePerKey() int64 {
 	return bc.contracts.Policy.GetAttributeFeeInternal(bc.dao, transaction.NotaryAssistedT)
 }
 
 // GetNotaryDepositExpiration returns Notary deposit expiration height for the specified account.
+// Default value is returned if Notary contract is not yet active.
 func (bc *Blockchain) GetNotaryDepositExpiration(acc util.Uint160) uint32 {
+	if !bc.isHardforkEnabled(bc.contracts.Notary.ActiveIn(), bc.BlockHeight()) {
+		return 0
+	}
 	return bc.contracts.Notary.ExpirationOf(bc.dao, acc)
 }
 
