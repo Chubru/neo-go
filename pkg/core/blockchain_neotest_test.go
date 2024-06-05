@@ -2572,7 +2572,7 @@ func TestBlockchain_GenesisTransactionExtension(t *testing.T) {
 // in the right order.
 func TestNativenames(t *testing.T) {
 	bc, _ := chain.NewSingleWithCustomConfig(t, func(cfg *config.Blockchain) {
-		cfg.Hardforks = map[string]uint32{}
+		cfg.Hardforks = nil // default (all hardforks enabled) behaviour.
 		cfg.P2PSigExtensions = true
 	})
 	natives := bc.GetNatives()
