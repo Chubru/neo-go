@@ -95,7 +95,8 @@ type WSOptions struct {
 	// corresponding subscription is kept even after receiver's channel closing,
 	// thus it's still the caller's duty to call Unsubscribe() for this
 	// subscription.
-	CloseNotificationChannelIfFull bool
+	CloseNotificationChannelIfFull     bool
+	NonBlockingNotificationsDispatcher bool
 }
 
 // notificationReceiver is an interface aimed to provide WS subscriber functionality
@@ -589,7 +590,11 @@ readloop:
 					break readloop
 				}
 			}
-			c.notifySubscribers(ntf)
+			if c.wsOpts.NonBlockingNotificationsDispatcher {
+				go c.notifySubscribers(ntf)
+			} else {
+				c.notifySubscribers(ntf)
+			}
 		} else if rr.ID != nil && (rr.Error != nil || rr.Result != nil) {
 			id, err := strconv.ParseUint(string(rr.ID), 10, 64)
 			if err != nil {
