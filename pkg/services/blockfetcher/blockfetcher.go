@@ -222,7 +222,14 @@ func (bfs *Service) blockDownloader() {
 		select {
 		case <-bfs.ctx.Done():
 			return
-		case bfs.blocksCh <- b:
+		default:
+			err := bfs.enqueueBlock(b)
+			if err != nil {
+				bfs.log.Error("failed to enqueue block", zap.Uint32("index", b.Index), zap.Error(err))
+				bfs.stopService(true)
+				return
+			}
+			//case bfs.blocksCh <- b:
 		}
 	}
 }
